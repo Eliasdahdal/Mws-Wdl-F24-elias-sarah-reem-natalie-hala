@@ -27,7 +27,7 @@ with st.sidebar:
     show_comparison_plot = st.checkbox("Show Accuracy Comparison")
 
 # --- Load Selected Model ---
-model_filename = "model_plain.h5" if model_choice == "Without Augmentation" else "model_aug.h5"
+model_filename = "model_olivetti_plain.h5" if model_choice == "Without Augmentation" else "model_aug.h5"
 
 if os.path.exists(model_filename):
     model = load_model(model_filename)
