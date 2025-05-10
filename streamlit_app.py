@@ -47,57 +47,62 @@ true_classes = np.argmax(y_test, axis=1)
 
 # === Model Info Tab ===
 if selected_tab == "Model Info":
+    st.markdown("## 📘 MWS_WDL_S24")
+    st.markdown("""Supervisor: Dr. Bassel Alkhatib  
+Created by: Elias_335295 – Sarah_326852 – Reem_321116 – Hala_332141 – Natalie_336924""")
+    st.markdown("---")
+
     st.markdown("## 📊 Olivetti Model Evaluation Dashboard")
     st.markdown("Explore model performance and compare accuracy visually.")
 
+    st.markdown("### 🎯 Model Accuracy")
+    st.markdown(f"**Model File:** `{model_path}`")
     col1, col2 = st.columns([1, 2])
-    col1.metric("🎯 Accuracy", f"{acc * 100:.2f} %")
-    col1.markdown(f"**Model File:** `{model_path}`")
-    
-    # Donut-like half pie (Success vs Error)
+    col1.metric("Accuracy", f"{acc * 100:.2f} %")
+
+    # Donut chart (correct vs incorrect)
     success = round(acc * 100, 2)
     failure = round(100 - success, 2)
-    fig_donut = go.Figure(data=[go.Pie(
+    donut_fig = go.Figure(data=[go.Pie(
         values=[success, failure],
         labels=['✅ Correct', '❌ Incorrect'],
-        hole=0.5,
-        marker_colors=['green', 'red'],
+        hole=0.6,
+        marker_colors=['#2ecc71', '#e74c3c'],
         textinfo='label+percent',
         sort=False,
+        pull=[0.05, 0]
     )])
-    fig_donut.update_layout(
+    donut_fig.update_layout(
         title_text=f"{selected_model} Prediction Distribution",
         showlegend=False,
-        height=400
+        height=400,
+        margin=dict(t=40, b=0)
     )
-    col2.plotly_chart(fig_donut, use_container_width=True)
+    col2.plotly_chart(donut_fig, use_container_width=True)
 
-    # Compare models (if both exist)
+    # Accuracy comparison if both models available
     if len(available_models) == 2:
+        st.markdown("### 📈 Accuracy Comparison Between Models")
         accs = {}
         for name, path in available_models.items():
             m = load_model(path)
             accs[name] = m.evaluate(X_test, y_test, verbose=0)[1] * 100
 
-        st.markdown("### 📊 Accuracy Comparison Between Models")
-        fig_bar = go.Figure(data=[
-            go.Bar(name='Accuracy (%)', x=list(accs.keys()), y=list(accs.values()), marker_color=['blue', 'orange'])
+        bar_fig = go.Figure(data=[
+            go.Bar(name='Accuracy (%)',
+                   x=list(accs.keys()),
+                   y=list(accs.values()),
+                   marker_color=['#3498db', '#f39c12'],
+                   text=[f"{v:.2f}%" for v in accs.values()],
+                   textposition="auto")
         ])
-        fig_bar.update_layout(yaxis_title="Accuracy %", height=400)
-        st.plotly_chart(fig_bar, use_container_width=True)
+        bar_fig.update_layout(
+            yaxis_title="Accuracy %",
+            height=400,
+            margin=dict(t=20),
+            plot_bgcolor='white',
+            paper_bgcolor='white'
+        )
+        st.plotly_chart(bar_fig, use_container_width=True)
     else:
         st.info("Upload both models to compare their performance.")
-
-# === Predictions Tab ===
-elif selected_tab == "Predictions":
-    st.title("🖼 Prediction Samples")
-    num = st.slider("Number of Samples", 5, 20, 10)
-    indices = np.random.choice(len(X_test), size=num, replace=False)
-
-    cols = st.columns(5)
-    for i, idx in enumerate(indices):
-        with cols[i % 5]:
-            pred = pred_classes[idx]
-            true = true_classes[idx]
-            label = "✅ Correct" if pred == true else "❌ Wrong"
-            st.image(X_test[idx].squeeze(), width=100, caption=f"{label}\nT:{true} P:{pred}")
