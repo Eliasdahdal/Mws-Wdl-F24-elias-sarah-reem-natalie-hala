@@ -47,9 +47,6 @@ true_classes = np.argmax(y_test, axis=1)
 
 # === Model Info Tab ===
 if selected_tab == "Model Info":
-    st.markdown("## 📘 MWS_WDL_S24")
-    st.markdown("""Supervisor: Dr. Bassel Alkhatib  
-Created by: Elias_335295 – Sarah_326852 – Reem_321116 – Hala_332141 – Natalie_336924""")
     st.markdown("---")
 
     st.markdown("## 📊 Olivetti Model Evaluation Dashboard")
@@ -59,6 +56,8 @@ Created by: Elias_335295 – Sarah_326852 – Reem_321116 – Hala_332141 – Na
     st.markdown(f"**Model File:** `{model_path}`")
     col1, col2 = st.columns([1, 2])
     col1.metric("Accuracy", f"{acc * 100:.2f} %")
+    
+    st.markdown("---")
 
     # Donut chart (correct vs incorrect)
     success = round(acc * 100, 2)
