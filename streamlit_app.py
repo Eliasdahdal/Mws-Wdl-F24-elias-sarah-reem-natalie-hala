@@ -18,8 +18,7 @@ Supervisor: Dr. Bassel Alkhatib
 Created by: Elias_335295 - sarah_326852 - Reem_321116 - Hala_332141 - Natalie_336924
 """)
 
-
-# Load data
+# Load Olivetti data
 faces = fetch_olivetti_faces()
 X = faces.images[..., np.newaxis]
 y = to_categorical(faces.target, 40)
@@ -34,8 +33,7 @@ available_models = {k: v for k, v in model_files.items() if os.path.exists(v)}
 
 # Sidebar
 st.sidebar.title("🧭 Navigation")
-selected_tab = st.sidebar.radio("Choose Tab", ["Model Info", "Predictions", "Comparison"])
-
+selected_tab = st.sidebar.radio("Choose Tab", ["Model Info", "Predictions"])
 st.sidebar.markdown("---")
 selected_model = st.sidebar.selectbox("🧠 Choose Model", list(available_models.keys()))
 model_path = available_models[selected_model]
@@ -47,13 +45,41 @@ preds = model.predict(X_test)
 pred_classes = np.argmax(preds, axis=1)
 true_classes = np.argmax(y_test, axis=1)
 
-# TABS
+# === Model Info Tab ===
 if selected_tab == "Model Info":
-    st.title(f"🔍 {selected_model}")
-    st.metric("Accuracy", f"{acc * 100:.2f}%")
-    st.markdown(f"Model path: `{model_path}`")
-    st.info("This model is evaluated on 30% of the Olivetti test dataset.")
+    st.markdown("## 📊 Olivetti Model Evaluation Dashboard")
+    st.markdown("Explore model performance and compare accuracy visually.")
 
+    col1, col2 = st.columns([1, 2])
+    col1.metric("🎯 Accuracy", f"{acc * 100:.2f} %")
+    col1.markdown(f"**Model File:** `{model_path}`")
+    
+    # Gauge chart for this model
+    fig_gauge = go.Figure(go.Indicator(
+        mode="gauge+number",
+        value=acc * 100,
+        title={'text': f"{selected_model} Accuracy"},
+        gauge={'axis': {'range': [0, 100]}, 'bar': {'color': "green"}},
+    ))
+    col2.plotly_chart(fig_gauge, use_container_width=True)
+
+    # Compare models (if both exist)
+    if len(available_models) == 2:
+        accs = {}
+        for name, path in available_models.items():
+            m = load_model(path)
+            accs[name] = m.evaluate(X_test, y_test, verbose=0)[1] * 100
+
+        st.markdown("### 📊 Accuracy Comparison Between Models")
+        fig_bar = go.Figure(data=[
+            go.Bar(name='Accuracy (%)', x=list(accs.keys()), y=list(accs.values()), marker_color=['blue', 'orange'])
+        ])
+        fig_bar.update_layout(yaxis_title="Accuracy %", height=400)
+        st.plotly_chart(fig_bar, use_container_width=True)
+    else:
+        st.info("Upload both models to compare their performance.")
+
+# === Predictions Tab ===
 elif selected_tab == "Predictions":
     st.title("🖼 Prediction Samples")
     num = st.slider("Number of Samples", 5, 20, 10)
@@ -66,19 +92,3 @@ elif selected_tab == "Predictions":
             true = true_classes[idx]
             label = "✅ Correct" if pred == true else "❌ Wrong"
             st.image(X_test[idx].squeeze(), width=100, caption=f"{label}\nT:{true} P:{pred}")
-
-elif selected_tab == "Comparison":
-    st.title("📊 Accuracy Comparison")
-    if len(available_models) == 2:
-        accs = {}
-        for name, path in available_models.items():
-            m = load_model(path)
-            accs[name] = m.evaluate(X_test, y_test, verbose=0)[1] * 100
-
-        fig = go.Figure(data=[
-            go.Bar(name='Accuracy (%)', x=list(accs.keys()), y=list(accs.values()), marker_color=['blue', 'orange'])
-        ])
-        fig.update_layout(title="Model Accuracy Comparison", yaxis_title="Accuracy %")
-        st.plotly_chart(fig, use_container_width=True)
-    else:
-        st.warning("Both models must be available to show comparison.")
