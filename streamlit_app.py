@@ -55,20 +55,17 @@ if selected_tab == "Model Info":
     st.markdown("### 🎯 Model Accuracy")
     st.markdown(f"**Model File:** `{model_path}`")
 
-    # Row 1: Accuracy Metric
+    # Accuracy Metric - in its own container
     with st.container():
-        col1, _ = st.columns([1, 2])
-        col1.metric(
+        st.metric(
             label="Accuracy",
             value=f"{acc * 100:.2f} %"
         )
 
     st.markdown("---")
 
-    # Row 2: Donut Chart
+    # Donut Chart - in its own container
     with st.container():
-        _, col2 = st.columns([1, 2])
-
         success = round(acc * 100, 2)
         failure = round(100 - success, 2)
 
@@ -93,9 +90,11 @@ if selected_tab == "Model Info":
             margin=dict(t=40, b=0)
         )
 
-        col2.plotly_chart(donut_fig, use_container_width=True)
+        st.plotly_chart(donut_fig, use_container_width=True)
 
-    # Accuracy comparison if both models available
+    st.markdown("---")
+
+    # Accuracy Comparison
     if len(available_models) == 2:
         st.markdown("### 📈 Accuracy Comparison Between Models")
         accs = {}
@@ -104,12 +103,14 @@ if selected_tab == "Model Info":
             accs[name] = m.evaluate(X_test, y_test, verbose=0)[1] * 100
 
         bar_fig = go.Figure(data=[
-            go.Bar(name='Accuracy (%)',
-                   x=list(accs.keys()),
-                   y=list(accs.values()),
-                   marker_color=['#3498db', '#f39c12'],
-                   text=[f"{v:.2f}%" for v in accs.values()],
-                   textposition="auto")
+            go.Bar(
+                name='Accuracy (%)',
+                x=list(accs.keys()),
+                y=list(accs.values()),
+                marker_color=['#3498db', '#f39c12'],
+                text=[f"{v:.2f}%" for v in accs.values()],
+                textposition="auto"
+            )
         ])
         bar_fig.update_layout(
             yaxis_title="Accuracy %",
@@ -121,3 +122,4 @@ if selected_tab == "Model Info":
         st.plotly_chart(bar_fig, use_container_width=True)
     else:
         st.info("Upload both models to compare their performance.")
+
