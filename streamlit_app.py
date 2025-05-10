@@ -123,3 +123,18 @@ if selected_tab == "Model Info":
     else:
         st.info("Upload both models to compare their performance.")
 
+# === Predictions Tab ===
+elif selected_tab == "Predictions":
+    st.title("🖼 Prediction Samples")
+    num = st.slider("Number of Samples", 5, 20, 10)
+    indices = np.random.choice(len(X_test), size=num, replace=False)
+
+    cols = st.columns(5)
+    for i, idx in enumerate(indices):
+        with cols[i % 5]:
+            pred = pred_classes[idx]
+            true = true_classes[idx]
+            label = "✅ Correct" if pred == true else "❌ Wrong"
+            st.image(X_test[idx].squeeze(), width=100, caption=f"{label}\nT:{true} P:{pred}")
+
+
