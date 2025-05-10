@@ -9,7 +9,15 @@ from tensorflow.keras.utils import to_categorical
 import os
 
 # Config
-st.set_page_config(page_title="Olivetti Dashboard", layout="wide")
+st.set_page_config(page_title="Olivetti & Fer Dashboard", layout="wide")
+
+# Display user information at the top of the dashboard
+st.markdown("""
+#### MWS_WDL_S24
+Supervisor: Dr. Bassel Alkhatib  
+Created by: Elias_335295 - sarah_326852 - Reem_321116 - Hala_332141 - Natalie_336924
+""")
+
 
 # Load data
 faces = fetch_olivetti_faces()
