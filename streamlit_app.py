@@ -54,14 +54,23 @@ if selected_tab == "Model Info":
     col1.metric("🎯 Accuracy", f"{acc * 100:.2f} %")
     col1.markdown(f"**Model File:** `{model_path}`")
     
-    # Gauge chart for this model
-    fig_gauge = go.Figure(go.Indicator(
-        mode="gauge+number",
-        value=acc * 100,
-        title={'text': f"{selected_model} Accuracy"},
-        gauge={'axis': {'range': [0, 100]}, 'bar': {'color': "green"}},
-    ))
-    col2.plotly_chart(fig_gauge, use_container_width=True)
+    # Donut-like half pie (Success vs Error)
+    success = round(acc * 100, 2)
+    failure = round(100 - success, 2)
+    fig_donut = go.Figure(data=[go.Pie(
+        values=[success, failure],
+        labels=['✅ Correct', '❌ Incorrect'],
+        hole=0.5,
+        marker_colors=['green', 'red'],
+        textinfo='label+percent',
+        sort=False,
+    )])
+    fig_donut.update_layout(
+        title_text=f"{selected_model} Prediction Distribution",
+        showlegend=False,
+        height=400
+    )
+    col2.plotly_chart(fig_donut, use_container_width=True)
 
     # Compare models (if both exist)
     if len(available_models) == 2:
