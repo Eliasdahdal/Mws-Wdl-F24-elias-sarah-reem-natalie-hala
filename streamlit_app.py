@@ -9,7 +9,7 @@ from tensorflow.keras.utils import to_categorical
 import os
 
 # Config
-st.set_page_config(page_title="Olivetti & Fer Dashboard", layout="wide")
+st.set_page_config(page_title="Olivetti Dashboard", layout="wide")
 
 # Display user information at the top of the dashboard
 st.markdown("""
